@@ -1,5 +1,6 @@
+import numpy as np
+
 def task1():
-    import numpy as np
 
     logs = read_input()
     logs = np.array(logs)
@@ -23,25 +24,36 @@ def task1():
     print(f"Solution: {power_consumption}")
 
 def task2():
-    commands = read_input()
+    report = np.array(read_input())
+    oxygen_generator_rate = get_rate(report, func=max, equal_bit=1)
+    co2_scrubber_rate = get_rate(report, func=min, equal_bit=0)
+    life_supporting_rate = oxygen_generator_rate * co2_scrubber_rate
+    print(f"Solution: {life_supporting_rate}")
 
-    depth = 0
-    horizontal = 0
-    vertical = 0
 
-    for command in commands:
-        direction, value = command
-        if direction == "forward":
-            horizontal += int(value)
-            depth += (vertical * int(value))
-        elif direction == "down":
-            vertical += int(value)
-        elif direction == "up":
-            vertical -= int(value)
+def get_rate(report: np.array, func, equal_bit: int = 1):
+    for dim in range(report.shape[1]):
+
+        if report.shape[0] == 1:
+            pass
         else:
-            raise Exception
+            curr = report[:, dim]
+            unique, count = np.unique(curr, return_counts=True)
+            zipped = dict(zip(unique, count))
+            if zipped.get(0) == zipped.get(1):
+                filter = [x[dim] == equal_bit for x in report]
+            else:
+                bit = func(zipped, key=zipped.get)
+                filter = [x[dim] == bit for x in report]
+            report = report[filter]
 
-    print(f"Solution: {horizontal * depth}")
+    binary = convert_numpy_to_binary_str(report[0])
+    decimal = int(binary, 2)
+    return decimal
+
+
+def convert_numpy_to_binary_str(array: np.array):
+    return ''.join(map(str, array.tolist()))
 
 
 def read_input():
